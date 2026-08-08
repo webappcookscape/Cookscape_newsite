@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow admin/internal paths
+Disallow: /dist/
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://cookscape.in/sitemap.xml

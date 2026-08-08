@@ -1,0 +1,5 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  # Ensure a recent Node version (Vite 5 requires Node >=18)
+  environment = { NODE_VERSION = "18" }
