@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const FloatingActions = () => {
   const actions = [
@@ -13,7 +14,8 @@ const FloatingActions = () => {
       label: 'Call Us',
       color: 'linear-gradient(135deg, #b81c22 0%, #8f1217 100%)',
       shadow: '0 10px 20px rgba(184, 28, 34, 0.25)',
-      link: 'tel:+919600005679'
+      link: 'tel:+919600005679',
+      isInternal: false
     },
     {
       id: 'whatsapp',
@@ -25,7 +27,8 @@ const FloatingActions = () => {
       label: 'WhatsApp',
       color: 'linear-gradient(135deg, #25d366 0%, #128c7e 100%)',
       shadow: '0 10px 20px rgba(37, 211, 102, 0.25)',
-      link: 'https://wa.me/919677081181?text=Hi%20Cookscape%2C%20I%20am%20interested%20in%20designing%20my%20dream%20home%21%20Can%20we%20discuss%20the%20process%3F'
+      link: 'https://wa.me/919677081181?text=Hi%20Cookscape%2C%20I%20am%20interested%20in%20designing%20my%20dream%20home%21%20Can%20we%20discuss%20the%20process%3F',
+      isInternal: false
     },
     {
       id: 'enquire',
@@ -38,34 +41,68 @@ const FloatingActions = () => {
       label: 'Enquire Now',
       color: 'linear-gradient(135deg, #1a1a1a 0%, #333333 100%)',
       shadow: '0 10px 20px rgba(26, 26, 26, 0.25)',
-      link: '/#contact'
+      link: '/#contact',
+      isInternal: true
     }
   ];
 
   return (
     <div className="floating-actions-container">
-      {actions.map((action, index) => (
-        <motion.a
-          key={action.id}
-          href={action.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`floating-action-btn ${action.id}-btn`}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 + index * 0.1, type: 'spring', stiffness: 200, damping: 20 }}
-          whileHover={{ scale: 1.1, x: -5 }}
-          whileTap={{ scale: 0.9 }}
-          style={{ 
+      {actions.map((action, index) => {
+        const animProps = {
+          initial: { opacity: 0, x: 50 },
+          animate: { opacity: 1, x: 0 },
+          transition: { delay: 0.5 + index * 0.1, type: 'spring', stiffness: 200, damping: 20 },
+          whileHover: { scale: 1.1, x: -5 },
+          whileTap: { scale: 0.9 },
+          style: { 
             background: action.color,
             boxShadow: action.shadow
-          }}
-        >
-          <span className="btn-icon">{action.icon}</span>
-          <span className="btn-label">{action.label}</span>
-          <div className="btn-glow"></div>
-        </motion.a>
-      ))}
+          }
+        };
+
+        const innerContent = (
+          <>
+            <span className="btn-icon">{action.icon}</span>
+            <span className="btn-label">{action.label}</span>
+            <div className="btn-glow"></div>
+          </>
+        );
+
+        if (action.isInternal) {
+          return (
+            <motion.div
+              key={action.id}
+              className={`floating-action-btn ${action.id}-btn`}
+              {...animProps}
+            >
+              <Link
+                to={action.link}
+                style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => {
+                  const el = document.getElementById('contact');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                {innerContent}
+              </Link>
+            </motion.div>
+          );
+        }
+
+        return (
+          <motion.a
+            key={action.id}
+            href={action.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`floating-action-btn ${action.id}-btn`}
+            {...animProps}
+          >
+            {innerContent}
+          </motion.a>
+        );
+      })}
     </div>
   );
 };

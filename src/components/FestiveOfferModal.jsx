@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -6,28 +6,49 @@ const FestiveOfferModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
 
-  // Open modal after 5 seconds initially, then every 30 seconds if not submitted
-  useEffect(() => {
-    const initialTimer = setTimeout(() => {
-      const hasSubmitted = localStorage.getItem('hasSubmittedFestiveModal');
-      if (!hasSubmitted) {
-        setIsOpen((prev) => (!prev ? true : prev));
-      }
-    }, 5000);
+  const timerRef = useRef(null);
 
-    const intervalTimer = setInterval(() => {
-      const hasSubmitted = localStorage.getItem('hasSubmittedFestiveModal');
-      if (!hasSubmitted) {
-        setIsOpen((prev) => (!prev ? true : prev));
+  // Helper to schedule the popup after delayMs if user hasn't submitted yet
+  const schedulePopup = (delayMs = 20000) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    // Bypass check if testing with ?popup=true in URL
+    const isTestMode = window.location.search.includes('popup=true');
+    const hasSubmitted = localStorage.getItem('hasSubmittedFestiveModal');
+
+    if (!isTestMode && hasSubmitted === 'true') {
+      console.log('📢 [FestivePopup] Suppressed because you previously submitted the form (localStorage.hasSubmittedFestiveModal = "true"). Type window.resetFestivePopup() in console or add ?popup=true to URL to test.');
+      return;
+    }
+
+    console.log(`⏱️ [FestivePopup] Scheduled to appear in ${delayMs / 1000} seconds...`);
+
+    timerRef.current = setTimeout(() => {
+      const stillNotSubmitted = localStorage.getItem('hasSubmittedFestiveModal');
+      if (isTestMode || stillNotSubmitted !== 'true') {
+        console.log('🎉 [FestivePopup] Opening modal now.');
+        setIsOpen(true);
       }
-    }, 30000);
+    }, isTestMode ? 1000 : delayMs);
+  };
+
+  // Initial appearance after 20 seconds
+  useEffect(() => {
+    schedulePopup(20000);
+
+    // Helper exposed on window for easy developer testing
+    window.resetFestivePopup = () => {
+      localStorage.removeItem('hasSubmittedFestiveModal');
+      console.log('✓ [FestivePopup] Reset. Opening now...');
+      setIsOpen(true);
+    };
 
     return () => {
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
 
@@ -40,8 +61,15 @@ const FestiveOfferModal = () => {
     return () => window.removeEventListener('open-festive-modal', handleOpenModal);
   }, []);
 
+  // When user cancels/closes without submitting, show again in 20 seconds
   const handleClose = () => {
     setIsOpen(false);
+
+    const hasSubmitted = localStorage.getItem('hasSubmittedFestiveModal');
+    if (hasSubmitted !== 'true') {
+      console.log('🔄 [FestivePopup] Closed without submitting. Will reappear in 20 seconds.');
+      schedulePopup(20000);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -49,7 +77,7 @@ const FestiveOfferModal = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.phone || !formData.email) {
       setErrorMessage('Please fill in all details.');
@@ -61,7 +89,7 @@ const FestiveOfferModal = () => {
     const phoneTrimmed = formData.phone.trim();
     const emailTrimmed = formData.email.trim().toLowerCase();
 
-    // 1. Name checks (length, alphabet only, common dummies)
+    // 1. Name checks
     if (nameTrimmed.length < 2) {
       setErrorMessage('Name must be at least 2 characters long.');
       return;
@@ -77,7 +105,7 @@ const FestiveOfferModal = () => {
       return;
     }
 
-    // 2. Mobile Number checks (normalize, validate 10-digit Indian pattern, common dummies)
+    // 2. Mobile Number checks
     let rawPhone = phoneTrimmed.replace(/[\s\-\(\)]/g, '');
     if (rawPhone.startsWith('+91')) {
       rawPhone = rawPhone.substring(3);
@@ -102,7 +130,7 @@ const FestiveOfferModal = () => {
       return;
     }
 
-    // 3. Email checks (RFC format compliance, block dummy domains)
+    // 3. Email checks
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailTrimmed)) {
       setErrorMessage('Please enter a valid email address.');
@@ -116,32 +144,35 @@ const FestiveOfferModal = () => {
       return;
     }
     
-    setIsSubmitted(true);
-    setErrorMessage('');
+    // Clear any pending timers forever
+    if (timerRef.current) clearTimeout(timerRef.current);
     localStorage.setItem('hasSubmittedFestiveModal', 'true');
-    
-    // Send lead info to local Express SMTP server on port 6000
-    const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:6000' : '';
-    
-    fetch(`${backendUrl}/api/send-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to send email via backend.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Lead email sent successfully:', data);
-    })
-    .catch(err => {
-      console.error('SMTP backend submission error:', err);
-    });
+
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    const payload = {
+      name: nameTrimmed,
+      phone: rawPhone,
+      email: emailTrimmed,
+      message: 'Festive Offer - Flat 20% OFF Unlock Request',
+      source: 'Festive Offer Pop-up'
+    };
+
+    // Send lead info directly to Node.js backend endpoint
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.error('Lead submission error:', err);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      setFormData({ name: '', phone: '', email: '' });
+    }
   };
 
   return (
@@ -193,6 +224,7 @@ const FestiveOfferModal = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="festive-input-group">
@@ -203,6 +235,7 @@ const FestiveOfferModal = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="festive-input-group">
@@ -213,6 +246,7 @@ const FestiveOfferModal = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -223,6 +257,7 @@ const FestiveOfferModal = () => {
                       checked={isAgreed}
                       onChange={(e) => setIsAgreed(e.target.checked)}
                       required
+                      disabled={isSubmitting}
                     />
                     <label htmlFor="festive-agree-checkbox" className="festive-policy-text">
                       I agree to Cookscape’s{' '}
@@ -236,8 +271,13 @@ const FestiveOfferModal = () => {
                     </label>
                   </div>
 
-                  <button type="submit" className="festive-submit-btn" disabled={!isAgreed}>
-                    CONTINUE
+                  <button 
+                    type="submit" 
+                    className="festive-submit-btn" 
+                    disabled={!isAgreed || isSubmitting}
+                    style={{ opacity: isSubmitting ? 0.7 : 1 }}
+                  >
+                    {isSubmitting ? 'UNLOCKING...' : 'CONTINUE'}
                   </button>
                 </form>
               </div>

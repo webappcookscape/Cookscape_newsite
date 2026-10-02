@@ -61,16 +61,18 @@ function AppContent() {
         <Route path="/rename-gallery" element={<ImageNamer />} />
       </Routes>
 
-      {/* <FestiveOfferModal /> */}
+      <FestiveOfferModal />
       <FloatingActions />
     </div>
   );
 }
 
 function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
   return (
     <HelmetProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router basename={basename} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppContent />
       </Router>
     </HelmetProvider>

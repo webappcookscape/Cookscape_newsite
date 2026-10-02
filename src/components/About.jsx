@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const About = () => {
@@ -35,8 +36,8 @@ const About = () => {
             </div>
 
             <div className="about-btns-v3">
-              <a href="#services" className="btn-primary-v3">Get Services</a>
-              <a href="#contact" className="btn-secondary-v3">Book Consultation</a>
+              <Link to="/#services" className="btn-primary-v3">Get Services</Link>
+              <Link to="/#contact" className="btn-secondary-v3">Book Consultation</Link>
             </div>
           </motion.div>
 
@@ -63,7 +64,7 @@ const About = () => {
                     preload="metadata"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   >
-                    <source src="/about-video.mp4" type="video/mp4" />
+                    <source src={`${import.meta.env.BASE_URL}about-video.mp4`} type="video/mp4" />
                   </video>
                 </foreignObject>
               </svg>

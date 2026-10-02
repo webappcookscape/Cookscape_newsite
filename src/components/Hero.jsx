@@ -69,7 +69,7 @@ const Hero = () => {
             }}
           >
             <img 
-              src="/hero-image.png" 
+              src={`${import.meta.env.BASE_URL}hero-image.png`} 
               alt="Architectural Visualization" 
               fetchpriority="high"
             />

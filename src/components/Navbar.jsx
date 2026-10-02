@@ -56,6 +56,16 @@ const Navbar = () => {
     open: { opacity: 1, y: 0 },
   };
 
+  const handleNavClick = (path) => {
+    if (path.includes('#')) {
+      const id = path.split('#')[1];
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <>
       <header
@@ -63,30 +73,26 @@ const Navbar = () => {
       >
         <nav className="container nav-container-premium">
           <Link to="/" className="logo-link">
-            <img src="/logo.jpeg" alt="Cookscape" className="nav-logo" />
+            <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Cookscape" className="nav-logo" />
           </Link>
 
           {/* Desktop Menu */}
           <ul className="nav-desktop-menu">
             {NAV_LINKS.map((link) => (
               <li key={link.name}>
-                {link.path.startsWith("/#") ? (
-                  <a href={link.path} className="nav-link">
-                    {link.name}
-                  </a>
-                ) : (
-                  <Link to={link.path} className="nav-link">
-                    {link.name}
-                  </Link>
-                )}
+                <Link
+                  to={link.path}
+                  className="nav-link"
+                  onClick={() => handleNavClick(link.path)}
+                >
+                  {link.name}
+                </Link>
               </li>
             ))}
           </ul>
 
           <div className="nav-cta desktop-only">
-            <motion.a
-              href="/#contact"
-              className="nav-cta-btn"
+            <motion.div
               whileHover={{
                 scale: 1.04,
                 y: -3,
@@ -100,13 +106,19 @@ const Navbar = () => {
                 damping: 20,
               }}
             >
-              <span className="btn-border"></span>
+              <Link
+                to="/#contact"
+                className="nav-cta-btn"
+                onClick={() => handleNavClick('/#contact')}
+              >
+                <span className="btn-border"></span>
 
-              <span className="btn-content">
-                Book Consultation
-                <FiArrowRight className="btn-arrow" />
-              </span>
-            </motion.a>
+                <span className="btn-content">
+                  Book Consultation
+                  <FiArrowRight className="btn-arrow" />
+                </span>
+              </Link>
+            </motion.div>
           </div>
 
           {/* Mobile CTA Buttons */}
@@ -129,9 +141,13 @@ const Navbar = () => {
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.33 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .59 2.81 2 2 0 0 1-.45 2.11L7.09 10.12a16 16 0 0 0 6.79 6.79l1.48-1.48a2 2 0 0 1 2.11-.45 12.81 12.81 0 0 0 2.81.59A2 2 0 0 1 22 16.92z" />
               </svg>
             </a>
-            <a href="/#contact" className="nav-cta-btn-mobile">
+            <Link
+              to="/#contact"
+              className="nav-cta-btn-mobile"
+              onClick={() => handleNavClick('/#contact')}
+            >
               Book Now
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -161,25 +177,28 @@ const Navbar = () => {
               <ul className="mobile-nav-list">
                 {NAV_LINKS.map((link) => (
                   <motion.li key={link.name} variants={itemVariants}>
-                    {link.path.startsWith("/#") ? (
-                      <a href={link.path} onClick={toggleMenu}>
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link to={link.path} onClick={toggleMenu}>
-                        {link.name}
-                      </Link>
-                    )}
+                    <Link
+                      to={link.path}
+                      onClick={() => {
+                        toggleMenu();
+                        handleNavClick(link.path);
+                      }}
+                    >
+                      {link.name}
+                    </Link>
                   </motion.li>
                 ))}
                 <motion.li variants={itemVariants} className="mt-8">
-                  <a
-                    href="/#contact"
+                  <Link
+                    to="/#contact"
                     className="mobile-cta-btn"
-                    onClick={toggleMenu}
+                    onClick={() => {
+                      toggleMenu();
+                      handleNavClick('/#contact');
+                    }}
                   >
                     Book Free Consultation
-                  </a>
+                  </Link>
                 </motion.li>
               </ul>
 

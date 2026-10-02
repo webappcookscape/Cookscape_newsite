@@ -15,7 +15,9 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <img src="/logo.jpeg" alt="Cookscape" className="footer-brand-logo" loading="lazy" />
+            <Link to="/">
+              <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Cookscape" className="footer-brand-logo" loading="lazy" />
+            </Link>
             <p className="footer-tagline">
               Transforming spaces into luxury experiences for over 25 years. Chennai's most trusted interior design partner.
             </p>
@@ -51,10 +53,10 @@ const Footer = () => {
           >
             <h4>Navigation</h4>
             <ul>
-              <li><a href="#home">Home</a></li>
-              <li><a href="#services">Services</a></li>
-              <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="#about">About</a></li>
+              <li><Link to="/#home">Home</Link></li>
+              <li><Link to="/#services">Services</Link></li>
+              <li><Link to="/#testimonials">Testimonials</Link></li>
+              <li><Link to="/#about">About</Link></li>
               <li><Link to="/blog">Blog</Link></li>
               <li><Link to="/careers">Careers</Link></li>
             </ul>

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { GALLERY_COLLECTION } from '../data/siteData';
 
 const ImageNamer = () => {
@@ -275,9 +276,9 @@ const ImageNamer = () => {
                 There are no more generic images left in the <strong>{activeCategory}</strong> category. All assets now have unique, descriptive names!
               </p>
               <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-                <a href="/portfolio" style={{ padding: '14px 28px', borderRadius: '100px', background: '#b81c22', color: '#fff', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>
+                <Link to="/portfolio" style={{ padding: '14px 28px', borderRadius: '100px', background: '#b81c22', color: '#fff', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>
                   View Live Gallery
-                </a>
+                </Link>
               </div>
             </motion.div>
           )}
