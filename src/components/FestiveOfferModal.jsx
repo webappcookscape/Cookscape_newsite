@@ -172,6 +172,15 @@ const FestiveOfferModal = () => {
       setIsSubmitting(false);
       setIsSubmitted(true);
       setFormData({ name: '', phone: '', email: '' });
+
+      // Google Ads Conversion Event
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'generate_lead', {
+          send_to: 'AW-18450663698',
+          event_category: 'Lead',
+          event_label: 'Festive Offer Pop-up'
+        });
+      }
     }
   };
 

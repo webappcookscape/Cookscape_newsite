@@ -82,6 +82,15 @@ const Contact = () => {
 
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', message: '' });
+
+      // Google Ads Conversion Event
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'generate_lead', {
+          send_to: 'AW-18450663698',
+          event_category: 'Lead',
+          event_label: 'Website Consultation Form'
+        });
+      }
     } catch (err) {
       console.error('Contact form submission error:', err);
       setStatus('error');

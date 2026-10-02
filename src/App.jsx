@@ -42,6 +42,13 @@ function AppContent() {
       }
       window.scrollTo(0, 0);
     }
+
+    // Google Tag (gtag.js) SPA pageview tracking
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'AW-18450663698', {
+        page_path: location.pathname + location.search,
+      });
+    }
   }, [location]);
 
   return (
