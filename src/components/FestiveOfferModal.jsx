@@ -174,9 +174,13 @@ const FestiveOfferModal = () => {
       setFormData({ name: '', phone: '', email: '' });
 
       // Google Ads Conversion Event
-      if (typeof window.gtag === 'function') {
+      if (typeof window.gtag_report_conversion === 'function') {
+        window.gtag_report_conversion();
+      } else if (typeof window.gtag === 'function') {
         window.gtag('event', 'conversion', {
           send_to: 'AW-18450663698/e9gMCLmfjlYdEJKS-91E',
+          value: 1.0,
+          currency: 'INR',
           event_category: 'Lead',
           event_label: 'Festive Offer Pop-up'
         });
