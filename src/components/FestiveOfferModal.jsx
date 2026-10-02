@@ -175,8 +175,8 @@ const FestiveOfferModal = () => {
 
       // Google Ads Conversion Event
       if (typeof window.gtag === 'function') {
-        window.gtag('event', 'generate_lead', {
-          send_to: 'AW-18450663698',
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-18450663698/e9gMCLmfjlYdEJKS-91E',
           event_category: 'Lead',
           event_label: 'Festive Offer Pop-up'
         });

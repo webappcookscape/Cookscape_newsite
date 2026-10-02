@@ -9,6 +9,20 @@
       gtag('js', new Date());
 
       gtag('config', 'AW-18450663698');
+
+      function gtag_report_conversion(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+          'send_to': 'AW-18450663698/e9gMCLmfjlYdEJKS-91E',
+          'event_callback': callback
+        });
+        return false;
+      }
+      window.gtag_report_conversion = gtag_report_conversion;
     </script>
 
     <meta charset="UTF-8" />
