@@ -14,6 +14,7 @@ import ImageNamer from './pages/ImageNamer';
 import Navbar from './components/Navbar';
 import FloatingActions from './FloatingActions';
 import FestiveOfferModal from './components/FestiveOfferModal';
+import SegmentAutoScroll from './components/SegmentAutoScroll';
 
 function AppContent() {
   const location = useLocation();
@@ -61,6 +62,7 @@ function AppContent() {
         <Route path="/rename-gallery" element={<ImageNamer />} />
       </Routes>
 
+      <SegmentAutoScroll threshold={0.85} />
       <FestiveOfferModal />
       <FloatingActions />
     </div>
