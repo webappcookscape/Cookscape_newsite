@@ -20,25 +20,21 @@ const OfferModal = () => {
 
   const timerRef = useRef(null);
 
-  // Helper to schedule the popup after delayMs
-  const schedulePopup = (delayMs = 3500) => {
+  // Helper to schedule the popup after delayMs (default: 15 seconds)
+  const schedulePopup = (delayMs = 15000) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    // Bypass check if testing with ?popup=true in URL
-    const isTestMode = window.location.search.includes('popup=true');
-    const dismissedThisSession = sessionStorage.getItem('hasDismissedOfferModal') === 'true';
-    const submittedThisSession = sessionStorage.getItem('hasSubmittedOfferModal') === 'true';
-
-    // Only skip auto-popup if already dismissed or submitted in this session (and not in test mode)
-    if (!isTestMode && (dismissedThisSession || submittedThisSession)) {
-      console.log('📢 [OfferPopup] Modal already interacted with in this session. Click the floating offer badge to open anytime.');
+    const isSubmittedSession = sessionStorage.getItem('hasSubmittedOfferModal') === 'true';
+    if (isSubmittedSession) {
+      console.log('📢 [OfferPopup] Offer already claimed in this session. Recurring popup paused.');
       return;
     }
 
-    console.log(`⏱️ [OfferPopup] Scheduled to appear in ${delayMs / 1000} seconds...`);
+    console.log(`⏱️ [OfferPopup] Popup scheduled to appear in ${delayMs / 1000} seconds...`);
 
     timerRef.current = setTimeout(() => {
-      console.log('🎉 [OfferPopup] Opening modal now.');
+      console.log('🎉 [OfferPopup] 15 seconds elapsed: Opening modal now.');
+      setIsSubmitted(false);
       setIsOpen(true);
     }, delayMs);
   };
@@ -52,10 +48,10 @@ const OfferModal = () => {
       // Ignore if storage restricted
     }
 
-    // 2. Schedule popup after a fast, natural 3.5s delay
-    schedulePopup(3500);
+    // 2. Schedule popup for 15 seconds
+    schedulePopup(15000);
 
-    // 3. Helpers exposed globally on window for easy developer testing and instant access
+    // 3. Helpers exposed globally on window for easy testing and instant access
     window.openOfferModal = () => {
       setIsSubmitted(false);
       setIsOpen(true);
@@ -63,7 +59,6 @@ const OfferModal = () => {
     window.openFestiveModal = window.openOfferModal;
     window.resetOfferPopup = () => {
       try {
-        sessionStorage.removeItem('hasDismissedOfferModal');
         sessionStorage.removeItem('hasSubmittedOfferModal');
         localStorage.removeItem('hasSubmittedOfferModal');
         localStorage.removeItem('hasSubmittedFestiveModal');
@@ -96,9 +91,8 @@ const OfferModal = () => {
   const handleClose = () => {
     setIsOpen(false);
     setErrorMessage('');
-    try {
-      sessionStorage.setItem('hasDismissedOfferModal', 'true');
-    } catch {}
+    // Re-schedule for another popup in 15 seconds if user hasn't submitted yet
+    schedulePopup(15000);
   };
 
   const handleInputChange = (e) => {
