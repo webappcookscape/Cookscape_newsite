@@ -7,6 +7,9 @@ const Contact = () => {
     name: '',
     email: '',
     phone: '',
+    location: '',
+    houseType: 'Apartment',
+    bhk: '3 BHK',
     message: ''
   });
 
@@ -30,6 +33,9 @@ const Contact = () => {
     const name = formData.name.trim();
     const email = formData.email.trim().toLowerCase();
     let phone = formData.phone.trim().replace(/[\s\-\(\)]/g, '');
+    const location = formData.location ? formData.location.trim() : '';
+    const houseType = formData.houseType || 'Apartment';
+    const bhk = formData.bhk || '3 BHK';
 
     // Normalize phone numbers (stripping leading country code)
     if (phone.startsWith('+91')) {
@@ -58,13 +64,21 @@ const Contact = () => {
       return;
     }
 
+    if (!location || location.length < 2) {
+      setErrorMessage('Please enter your city / location (e.g., Chennai).');
+      return;
+    }
+
     setStatus('submitting');
 
     const payload = {
       name,
       email,
       phone,
-      message: formData.message.trim(),
+      location,
+      houseType,
+      bhk,
+      message: `${formData.message ? formData.message.trim() + '\n\n' : ''}Location: ${location} | Property: ${houseType} | BHK: ${bhk}`,
       source: 'Website Consultation Form'
     };
 
@@ -82,13 +96,16 @@ const Contact = () => {
       }
 
       setStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', location: '', houseType: 'Apartment', bhk: '3 BHK', message: '' });
 
       // Track Lead conversion across Google Ads (with Enhanced Conversions) and Meta Pixel
       trackLeadConversion({
         name,
         email,
         phone,
+        location,
+        houseType,
+        bhk,
         source: 'Website Consultation Form'
       });
     } catch (err) {
@@ -245,17 +262,67 @@ const Contact = () => {
                     </div>
                   </div>
 
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label htmlFor="contact-phone">Mobile Number *</label>
+                      <input 
+                        type="tel" 
+                        id="contact-phone" 
+                        placeholder="+91 98765 43210" 
+                        required
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={status === 'submitting'}
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label htmlFor="contact-location">Location / City *</label>
+                      <input 
+                        type="text" 
+                        id="contact-location" 
+                        placeholder="e.g. Chennai" 
+                        required
+                        value={formData.location}
+                        onChange={handleChange}
+                        disabled={status === 'submitting'}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Type of House Selection */}
                   <div className="form-field">
-                    <label htmlFor="contact-phone">Mobile Number *</label>
-                    <input 
-                      type="tel" 
-                      id="contact-phone" 
-                      placeholder="+91 98765 43210" 
-                      required
-                      value={formData.phone}
-                      onChange={handleChange}
-                      disabled={status === 'submitting'}
-                    />
+                    <label>Type of House *</label>
+                    <div className="festive-pill-group">
+                      {['Apartment', 'Individual House'].map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          className={`festive-pill-btn ${formData.houseType === type ? 'active' : ''}`}
+                          onClick={() => setFormData((prev) => ({ ...prev, houseType: type }))}
+                          disabled={status === 'submitting'}
+                        >
+                          {type === 'Apartment' ? '🏢 Apartment' : '🏡 Individual House'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* BHK Requirement Selection */}
+                  <div className="form-field">
+                    <label>BHK Requirement *</label>
+                    <div className="festive-pill-group bhk-grid">
+                      {['1 BHK', '2 BHK', '3 BHK', '4+ BHK'].map((bhkOption) => (
+                        <button
+                          key={bhkOption}
+                          type="button"
+                          className={`festive-pill-btn ${formData.bhk === bhkOption ? 'active' : ''}`}
+                          onClick={() => setFormData((prev) => ({ ...prev, bhk: bhkOption }))}
+                          disabled={status === 'submitting'}
+                        >
+                          {bhkOption}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="form-field">

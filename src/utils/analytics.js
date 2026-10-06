@@ -23,6 +23,9 @@ export function trackLeadConversion({
   name = '',
   email = '',
   phone = '',
+  location = '',
+  houseType = '',
+  bhk = '',
   source = 'Lead Form',
   value = 1.0,
   currency = 'INR'
@@ -42,12 +45,18 @@ export function trackLeadConversion({
         if (cleanEmail) userData.email = cleanEmail;
         if (cleanPhone) userData.phone_number = cleanPhone;
 
+        const address = {};
         if (name && name.trim()) {
           const parts = name.trim().split(/\s+/);
-          userData.address = {
-            first_name: parts[0] || '',
-            last_name: parts.slice(1).join(' ') || ''
-          };
+          address.first_name = parts[0] || '';
+          address.last_name = parts.slice(1).join(' ') || '';
+        }
+        if (location && location.trim()) {
+          address.city = location.trim();
+          address.country = 'IN';
+        }
+        if (Object.keys(address).length > 0) {
+          userData.address = address;
         }
 
         window.gtag('set', 'user_data', userData);
@@ -59,12 +68,15 @@ export function trackLeadConversion({
         value: value,
         currency: currency,
         event_category: 'Lead',
-        event_label: source
+        event_label: source,
+        lead_location: location,
+        property_type: houseType,
+        bhk_type: bhk
       });
 
       googleAdsSuccess = true;
       console.log(
-        `%c[Google Ads]%c Lead Conversion fired successfully 🎯\n  Send to: ${GOOGLE_ADS_CONVERSION_LABEL}\n  Source: ${source}\n  Value: ${value} ${currency}`,
+        `%c[Google Ads]%c Lead Conversion fired successfully 🎯\n  Send to: ${GOOGLE_ADS_CONVERSION_LABEL}\n  Source: ${source}\n  Location: ${location || 'N/A'}\n  Property: ${houseType || 'N/A'} (${bhk || 'N/A'})\n  Value: ${value} ${currency}`,
         'background: #1a73e8; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
         'color: inherit;'
       );
@@ -96,11 +108,14 @@ export function trackLeadConversion({
       window.fbq('track', 'Lead', {
         content_name: source,
         currency: currency,
-        value: value
+        value: value,
+        property_type: houseType,
+        bhk: bhk,
+        location: location
       });
       metaPixelSuccess = true;
       console.log(
-        `%c[Meta Pixel]%c Lead event fired successfully 🚀\n  Content: ${source}`,
+        `%c[Meta Pixel]%c Lead event fired successfully 🚀\n  Content: ${source}\n  Location: ${location || 'N/A'}\n  Type: ${houseType || 'N/A'} - ${bhk || 'N/A'}`,
         'background: #1877f2; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
         'color: inherit;'
       );

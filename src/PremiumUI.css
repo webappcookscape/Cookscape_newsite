@@ -2562,22 +2562,34 @@ color: var(--text-primary-dark);
 .festive-modal-card {
   background: #ffffff;
   width: 100%;
-  max-width: 500px;
-  border-radius: 32px;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 28, 34, 0.3) transparent;
+  border-radius: 28px;
   position: relative;
-  overflow: hidden;
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.3),
     0 0 1px 1px rgba(255, 255, 255, 0.1) inset;
   border: 1px solid rgba(226, 29, 18, 0.1);
 }
 
+.festive-modal-card::-webkit-scrollbar {
+  width: 5px;
+}
+
+.festive-modal-card::-webkit-scrollbar-thumb {
+  background: rgba(184, 28, 34, 0.25);
+  border-radius: 10px;
+}
+
 .festive-modal-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 38px;
-  height: 38px;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.05);
   border: none;
@@ -2597,13 +2609,13 @@ color: var(--text-primary-dark);
 }
 
 .festive-decor-top {
-  height: 8px;
+  height: 6px;
   background: linear-gradient(90deg, #d4af37 0%, #f3e5ab 50%, #d4af37 100%);
   width: 100%;
 }
 
 .festive-modal-body {
-  padding: 50px 40px;
+  padding: 38px 30px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -2697,6 +2709,65 @@ color: var(--text-primary-dark);
   border-color: var(--premium-accent);
   background: #ffffff;
   box-shadow: 0 8px 24px rgba(184, 28, 34, 0.05);
+}
+
+.festive-choice-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+}
+
+.festive-choice-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #444444;
+}
+
+.festive-pill-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.festive-pill-group.bhk-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.festive-pill-btn {
+  flex: 1;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  background: #fafafa;
+  color: #333333;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  user-select: none;
+}
+
+.festive-pill-btn:hover {
+  border-color: var(--premium-accent);
+  background: #fff8f8;
+  color: var(--premium-accent);
+}
+
+.festive-pill-btn.active {
+  border-color: var(--premium-accent);
+  background: linear-gradient(135deg, #b81c22 0%, #8f1217 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(184, 28, 34, 0.25);
 }
 
 .festive-policy-text {

@@ -34,7 +34,7 @@ transporter.verify((error) => {
  * Controller to send customer enquiry and lead emails
  */
 export const sendEmail = async (req, res) => {
-  const { name, phone, email, message, source } = req.body;
+  const { name, phone, email, message, source, location, houseType, bhk } = req.body;
 
   if (!name || !phone || !email) {
     return res.status(400).json({ error: 'Name, phone, and email are required.' });
@@ -92,6 +92,21 @@ export const sendEmail = async (req, res) => {
             <td class="label">Email</td>
             <td class="value"><a href="mailto:${email}" style="color: #b81c22; text-decoration: none;">${email}</a></td>
           </tr>
+          ${location ? `
+          <tr>
+            <td class="label">Location / City</td>
+            <td class="value"><strong>${location}</strong></td>
+          </tr>` : ''}
+          ${houseType ? `
+          <tr>
+            <td class="label">Type of House</td>
+            <td class="value"><strong>${houseType}</strong></td>
+          </tr>` : ''}
+          ${bhk ? `
+          <tr>
+            <td class="label">BHK Requirement</td>
+            <td class="value"><strong>${bhk}</strong></td>
+          </tr>` : ''}
           <tr>
             <td class="label">Source</td>
             <td class="value">${leadSource}</td>

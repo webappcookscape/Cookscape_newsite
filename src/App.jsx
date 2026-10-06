@@ -13,7 +13,7 @@ import Terms from './pages/Terms';
 import ImageNamer from './pages/ImageNamer';
 import Navbar from './components/Navbar';
 import FloatingActions from './FloatingActions';
-import FestiveOfferModal from './components/FestiveOfferModal';
+import OfferModal from './components/OfferModal';
 import SegmentAutoScroll from './components/SegmentAutoScroll';
 
 function AppContent() {
@@ -78,7 +78,7 @@ function AppContent() {
       </Routes>
 
       <SegmentAutoScroll threshold={0.85} />
-      <FestiveOfferModal />
+      <OfferModal />
       <FloatingActions />
     </div>
   );

@@ -3,14 +3,17 @@ import { useLocation } from 'react-router-dom';
 
 /**
  * SegmentAutoScroll
- * Automatically scrolls to the next segment/section when the user scrolls 85% of the current segment.
+ * Smoothly and gracefully glides to the next section when the user scrolls near the end of a section (>= 85%).
+ * Built with gesture-awareness so it never fights the user's manual scrolling or causes stutter.
  */
 const SegmentAutoScroll = ({ threshold = 0.85 }) => {
   const location = useLocation();
   const isAutoScrollingRef = useRef(false);
+  const animFrameIdRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
   const lastScrollYRef = useRef(0);
   const lastTriggeredIndexRef = useRef(-1);
-  const scrollTimeoutRef = useRef(null);
+  const isUserInteractingRef = useRef(false);
 
   useEffect(() => {
     // Reset state on route change
@@ -18,52 +21,98 @@ const SegmentAutoScroll = ({ threshold = 0.85 }) => {
     lastTriggeredIndexRef.current = -1;
     lastScrollYRef.current = window.scrollY;
 
+    const cancelAutoScroll = () => {
+      if (isAutoScrollingRef.current) {
+        if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
+        isAutoScrollingRef.current = false;
+      }
+    };
+
+    const handleUserGestureStart = () => {
+      isUserInteractingRef.current = true;
+      cancelAutoScroll();
+    };
+
+    const handleUserGestureEnd = () => {
+      isUserInteractingRef.current = false;
+    };
+
+    window.addEventListener('wheel', handleUserGestureStart, { passive: true });
+    window.addEventListener('touchstart', handleUserGestureStart, { passive: true });
+    window.addEventListener('touchend', handleUserGestureEnd, { passive: true });
+
     const getSegments = () => {
-      // Collect all main sections and footer as distinct segments
       const elements = Array.from(
         document.querySelectorAll('main > section, main section, footer, [data-segment="true"]')
       );
-
-      // Filter out hidden, tiny, or duplicate nested sections
-      const validSegments = [];
+      const valid = [];
       const seenTops = new Set();
 
       elements.forEach((el) => {
         const rect = el.getBoundingClientRect();
         const top = Math.round(rect.top + window.scrollY);
-        const height = rect.height;
-
-        // Must have meaningful height and not share identical top position
-        if (height >= 180 && !seenTops.has(top) && el.offsetParent !== null) {
+        if (rect.height >= 180 && !seenTops.has(top) && el.offsetParent !== null) {
           seenTops.add(top);
-          validSegments.push(el);
+          valid.push({ el, top, height: rect.height });
         }
       });
 
-      // Sort by their vertical position on the page
-      validSegments.sort((a, b) => {
-        const topA = a.getBoundingClientRect().top + window.scrollY;
-        const topB = b.getBoundingClientRect().top + window.scrollY;
-        return topA - topB;
-      });
-
-      return validSegments;
+      valid.sort((a, b) => a.top - b.top);
+      return valid;
     };
 
-    const handleScroll = () => {
+    // Smooth scroll animation using requestAnimationFrame with easeInOutCubic
+    const smoothScrollTo = (targetY, duration = 650) => {
+      cancelAutoScroll();
+      isAutoScrollingRef.current = true;
+
+      const startY = window.scrollY;
+      const distance = targetY - startY;
+      if (Math.abs(distance) < 8) {
+        isAutoScrollingRef.current = false;
+        return;
+      }
+
+      const startTime = performance.now();
+
+      const easeInOutCubic = (t) =>
+        t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+
+      const step = (currentTime) => {
+        if (isUserInteractingRef.current) {
+          isAutoScrollingRef.current = false;
+          return;
+        }
+
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        window.scrollTo(0, startY + distance * easedProgress);
+
+        if (progress < 1) {
+          animFrameIdRef.current = requestAnimationFrame(step);
+        } else {
+          isAutoScrollingRef.current = false;
+          lastScrollYRef.current = window.scrollY;
+        }
+      };
+
+      animFrameIdRef.current = requestAnimationFrame(step);
+    };
+
+    const checkAndTriggerScroll = () => {
       if (isAutoScrollingRef.current) return;
 
       const currentScrollY = window.scrollY;
       const isScrollingDown = currentScrollY > lastScrollYRef.current;
       lastScrollYRef.current = currentScrollY;
 
-      // Only advance automatically when scrolling downwards
       if (!isScrollingDown) {
-        // If scrolling up, reset lock if we moved away from the last triggered section
+        // Reset last triggered index if scrolling upwards
         const segments = getSegments();
         const activeIndex = segments.findIndex((seg) => {
-          const rect = seg.getBoundingClientRect();
-          return rect.top <= window.innerHeight * 0.4 && rect.bottom >= window.innerHeight * 0.4;
+          return currentScrollY >= seg.top - 100 && currentScrollY < seg.top + seg.height - 100;
         });
         if (activeIndex !== -1 && activeIndex !== lastTriggeredIndexRef.current) {
           lastTriggeredIndexRef.current = -1;
@@ -75,60 +124,52 @@ const SegmentAutoScroll = ({ threshold = 0.85 }) => {
       if (segments.length < 2) return;
 
       for (let i = 0; i < segments.length - 1; i++) {
-        const currentSegment = segments[i];
-        const nextSegment = segments[i + 1];
+        const current = segments[i];
+        const next = segments[i + 1];
 
-        const rect = currentSegment.getBoundingClientRect();
-        const segmentTop = rect.top + currentScrollY;
-        const segmentHeight = rect.height;
-
-        // Check if user is currently inside this segment
         const isInside =
-          currentScrollY + 5 >= segmentTop &&
-          currentScrollY < segmentTop + segmentHeight - 40;
+          currentScrollY + 5 >= current.top &&
+          currentScrollY < current.top + current.height - 40;
 
         if (isInside) {
-          // Calculate progress through this segment
-          const isTallerThanViewport = segmentHeight > window.innerHeight;
-          const maxScrollable = isTallerThanViewport
-            ? segmentHeight - window.innerHeight
-            : segmentHeight * 0.85;
+          const maxScrollable =
+            current.height > window.innerHeight
+              ? current.height - window.innerHeight
+              : current.height * 0.85;
 
-          const scrolledInside = currentScrollY - segmentTop;
+          const scrolledInside = currentScrollY - current.top;
           const progress = maxScrollable > 0 ? scrolledInside / maxScrollable : 1;
 
-          // When scrolled through >= 85% of this segment
           if (progress >= threshold && lastTriggeredIndexRef.current !== i) {
-            isAutoScrollingRef.current = true;
             lastTriggeredIndexRef.current = i;
-
-            // Smooth scroll immediately to the top of the next segment
-            const nextRect = nextSegment.getBoundingClientRect();
-            const targetY = nextRect.top + window.scrollY;
-
-            window.scrollTo({
-              top: targetY,
-              behavior: 'smooth',
-            });
-
-            // Unlock after smooth scroll transition completes
-            if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-            scrollTimeoutRef.current = setTimeout(() => {
-              isAutoScrollingRef.current = false;
-              lastScrollYRef.current = window.scrollY;
-            }, 850);
-
+            smoothScrollTo(next.top, 700);
             break;
           }
         }
       }
     };
 
+    const handleScroll = () => {
+      if (isAutoScrollingRef.current) return;
+
+      // Settle detection: wait until the user pauses manual scrolling (~120ms)
+      // This prevents interrupting the user mid-swipe or mid-wheel gesture
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        isUserInteractingRef.current = false;
+        checkAndTriggerScroll();
+      }, 120);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleUserGestureStart);
+      window.removeEventListener('touchstart', handleUserGestureStart);
+      window.removeEventListener('touchend', handleUserGestureEnd);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
     };
   }, [location.pathname, threshold]);
 
