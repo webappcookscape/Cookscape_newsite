@@ -16,47 +16,60 @@ const OfferModal = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isAgreed, setIsAgreed] = useState(false);
+  const [isAgreed, setIsAgreed] = useState(true);
 
   const timerRef = useRef(null);
 
-  // Helper to schedule the popup after delayMs if user hasn't submitted yet
-  const schedulePopup = (delayMs = 20000) => {
+  // Helper to schedule the popup after delayMs
+  const schedulePopup = (delayMs = 3500) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     // Bypass check if testing with ?popup=true in URL
     const isTestMode = window.location.search.includes('popup=true');
-    const hasSubmitted =
-      localStorage.getItem('hasSubmittedOfferModal') ||
-      localStorage.getItem('hasSubmittedFestiveModal');
+    const dismissedThisSession = sessionStorage.getItem('hasDismissedOfferModal') === 'true';
+    const submittedThisSession = sessionStorage.getItem('hasSubmittedOfferModal') === 'true';
 
-    if (!isTestMode && hasSubmitted === 'true') {
-      console.log('📢 [OfferPopup] Suppressed because you previously submitted the form. Type window.resetOfferPopup() in console or add ?popup=true to URL to test.');
+    // Only skip auto-popup if already dismissed or submitted in this session (and not in test mode)
+    if (!isTestMode && (dismissedThisSession || submittedThisSession)) {
+      console.log('📢 [OfferPopup] Modal already interacted with in this session. Click the floating offer badge to open anytime.');
       return;
     }
 
     console.log(`⏱️ [OfferPopup] Scheduled to appear in ${delayMs / 1000} seconds...`);
 
     timerRef.current = setTimeout(() => {
-      const stillNotSubmitted =
-        localStorage.getItem('hasSubmittedOfferModal') ||
-        localStorage.getItem('hasSubmittedFestiveModal');
-      if (isTestMode || stillNotSubmitted !== 'true') {
-        console.log('🎉 [OfferPopup] Opening modal now.');
-        setIsOpen(true);
-      }
-    }, isTestMode ? 1000 : delayMs);
+      console.log('🎉 [OfferPopup] Opening modal now.');
+      setIsOpen(true);
+    }, delayMs);
   };
 
-  // Initial appearance after 20 seconds
   useEffect(() => {
-    schedulePopup(20000);
-
-    // Helper exposed on window for developer testing
-    window.resetOfferPopup = () => {
+    // 1. Immediately clean up any past permanent lockout from localStorage
+    try {
       localStorage.removeItem('hasSubmittedOfferModal');
       localStorage.removeItem('hasSubmittedFestiveModal');
-      console.log('✓ [OfferPopup] Reset. Opening now...');
+    } catch {
+      // Ignore if storage restricted
+    }
+
+    // 2. Schedule popup after a fast, natural 3.5s delay
+    schedulePopup(3500);
+
+    // 3. Helpers exposed globally on window for easy developer testing and instant access
+    window.openOfferModal = () => {
+      setIsSubmitted(false);
+      setIsOpen(true);
+    };
+    window.openFestiveModal = window.openOfferModal;
+    window.resetOfferPopup = () => {
+      try {
+        sessionStorage.removeItem('hasDismissedOfferModal');
+        sessionStorage.removeItem('hasSubmittedOfferModal');
+        localStorage.removeItem('hasSubmittedOfferModal');
+        localStorage.removeItem('hasSubmittedFestiveModal');
+      } catch {}
+      console.log('✓ [OfferPopup] Storage reset. Opening modal now...');
+      setIsSubmitted(false);
       setIsOpen(true);
     };
     window.resetFestivePopup = window.resetOfferPopup;
@@ -66,9 +79,10 @@ const OfferModal = () => {
     };
   }, []);
 
-  // Listen for custom trigger event to open the modal programmatically
+  // Listen for custom trigger events to open the modal programmatically from any component
   useEffect(() => {
     const handleOpenModal = () => {
+      setIsSubmitted(false);
       setIsOpen(true);
     };
     window.addEventListener('open-offer-modal', handleOpenModal);
@@ -82,13 +96,9 @@ const OfferModal = () => {
   const handleClose = () => {
     setIsOpen(false);
     setErrorMessage('');
-    // Re-schedule for another reminder after 45 seconds if user didn't submit
-    const hasSubmitted =
-      localStorage.getItem('hasSubmittedOfferModal') ||
-      localStorage.getItem('hasSubmittedFestiveModal');
-    if (hasSubmitted !== 'true') {
-      schedulePopup(45000);
-    }
+    try {
+      sessionStorage.setItem('hasDismissedOfferModal', 'true');
+    } catch {}
   };
 
   const handleInputChange = (e) => {
@@ -99,12 +109,17 @@ const OfferModal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.name || !formData.phone || !formData.email || !formData.location) {
       setErrorMessage('Please fill in all details including your location.');
       return;
     }
 
-    // Form input validation for real vs dummy/invalid data
+    if (!isAgreed) {
+      setErrorMessage('Please agree to Cookscape’s Terms of Use & Privacy Policy to claim your offer.');
+      return;
+    }
+
     const nameTrimmed = formData.name.trim();
     const phoneTrimmed = formData.phone.trim();
     const emailTrimmed = formData.email.trim().toLowerCase();
@@ -112,23 +127,13 @@ const OfferModal = () => {
     const houseType = formData.houseType || 'Apartment';
     const bhk = formData.bhk || '3 BHK';
 
-    // 1. Name checks
+    // 1. Name check
     if (nameTrimmed.length < 2) {
       setErrorMessage('Name must be at least 2 characters long.');
       return;
     }
-    const nameRegex = /^[a-zA-Z\s]{2,50}$/;
-    if (!nameRegex.test(nameTrimmed)) {
-      setErrorMessage('Name should contain only letters and spaces.');
-      return;
-    }
-    const dummyNames = ['test', 'asdf', 'admin', 'user', 'dummy', 'abc', 'xyz', 'qwer'];
-    if (dummyNames.includes(nameTrimmed.toLowerCase())) {
-      setErrorMessage('Please enter a valid, real name.');
-      return;
-    }
 
-    // 2. Mobile Number checks
+    // 2. Mobile Number check (supports +91, 91, 0 prefixes or clean 10 digits)
     let rawPhone = phoneTrimmed.replace(/[\s\-\(\)]/g, '');
     if (rawPhone.startsWith('+91')) {
       rawPhone = rawPhone.substring(3);
@@ -143,39 +148,25 @@ const OfferModal = () => {
       setErrorMessage('Please enter a valid 10-digit mobile number.');
       return;
     }
-    const repeatingPatterns = [
-      '0000000000', '1111111111', '2222222222', '3333333333', '4444444444',
-      '5555555555', '6666666666', '7777777777', '8888888888', '9999999999',
-      '1234567890', '0987654321', '9876543210'
-    ];
-    if (repeatingPatterns.includes(rawPhone)) {
-      setErrorMessage('Please enter a valid mobile number (avoid sequential/repeated digits).');
-      return;
-    }
 
-    // 3. Email checks
+    // 3. Email check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailTrimmed)) {
       setErrorMessage('Please enter a valid email address.');
       return;
     }
-    const dummyEmails = ['test@test.com', 'test@gmail.com', 'dummy@gmail.com', 'abc@gmail.com', 'asdf@asdf.com', 'admin@gmail.com'];
-    const dummyDomains = ['example.com', 'test.com', 'dummy.com', 'tempmail.com', 'mailinator.com'];
-    const domain = emailTrimmed.split('@')[1];
-    if (dummyEmails.includes(emailTrimmed) || dummyDomains.includes(domain)) {
-      setErrorMessage('Please use a valid non-dummy email address.');
-      return;
-    }
 
-    // 4. Location checks
+    // 4. Location check
     if (locationTrimmed.length < 2) {
       setErrorMessage('Please enter your location/city (e.g. Chennai).');
       return;
     }
     
-    // Clear any pending timers forever
+    // Stop any pending timers & record submission in session
     if (timerRef.current) clearTimeout(timerRef.current);
-    localStorage.setItem('hasSubmittedOfferModal', 'true');
+    try {
+      sessionStorage.setItem('hasSubmittedOfferModal', 'true');
+    } catch {}
 
     setIsSubmitting(true);
     setErrorMessage('');
@@ -191,7 +182,7 @@ const OfferModal = () => {
       source: 'Exclusive Offer Pop-up'
     };
 
-    // Send lead info directly to Node.js backend endpoint
+    // Send lead info to Node.js backend endpoint
     try {
       await fetch('/api/send-email', {
         method: 'POST',
@@ -199,7 +190,7 @@ const OfferModal = () => {
         body: JSON.stringify(payload)
       });
     } catch (err) {
-      console.error('Lead submission error:', err);
+      console.warn('Backend notification notice:', err);
     } finally {
       setIsSubmitting(false);
       setIsSubmitted(true);
@@ -219,7 +210,8 @@ const OfferModal = () => {
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       {isOpen && (
         <motion.div
           className="festive-modal-overlay"
@@ -394,7 +386,7 @@ const OfferModal = () => {
                     <button 
                       type="submit" 
                       className="festive-submit-btn" 
-                      disabled={!isAgreed || isSubmitting}
+                      disabled={isSubmitting}
                       style={{ opacity: isSubmitting ? 0.7 : 1 }}
                     >
                       {isSubmitting ? 'UNLOCKING...' : 'CLAIM 20% OFF NOW'}
@@ -407,6 +399,29 @@ const OfferModal = () => {
         </motion.div>
       )}
     </AnimatePresence>
+
+    {/* Floating Offer Button on bottom-left for instant 1-click access */}
+    {!isOpen && (
+      <motion.button
+        type="button"
+        className="floating-offer-badge"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.8, type: 'spring', stiffness: 200, damping: 20 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => {
+          setIsSubmitted(false);
+          setIsOpen(true);
+        }}
+        aria-label="Claim Flat 20% OFF Offer"
+      >
+        <span className="offer-badge-icon">🎁</span>
+        <span>Claim 20% OFF</span>
+        <span className="offer-badge-tag">OFFER</span>
+      </motion.button>
+    )}
+  </>
   );
 };
 

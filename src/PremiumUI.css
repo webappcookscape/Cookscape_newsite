@@ -2877,3 +2877,61 @@ color: var(--text-primary-dark);
     font-size: 2.5rem;
   }
 }
+
+/* ==========================================================================
+   7. FLOATING OFFER BADGE (Bottom-Left Trigger)
+   ========================================================================== */
+.floating-offer-badge {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #b81c22 0%, #8f1217 100%);
+  color: #ffffff;
+  border: 1.5px solid rgba(212, 175, 55, 0.7);
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(184, 28, 34, 0.35), 0 0 15px rgba(212, 175, 55, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-offer-badge:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 30px rgba(184, 28, 34, 0.5), 0 0 20px rgba(212, 175, 55, 0.4);
+  border-color: #d4af37;
+}
+
+.floating-offer-badge .offer-badge-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.floating-offer-badge .offer-badge-tag {
+  background: #d4af37;
+  color: #111111;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .floating-offer-badge {
+    bottom: 25px;
+    left: 18px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    gap: 8px;
+  }
+}
+

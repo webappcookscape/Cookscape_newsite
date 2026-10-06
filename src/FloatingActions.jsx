@@ -6,6 +6,29 @@ import { trackContactAction } from './utils/analytics';
 const FloatingActions = () => {
   const actions = [
     {
+      id: 'offer',
+      icon: (
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 12 20 22 4 22 4 12" />
+          <rect x="2" y="7" width="20" height="5" />
+          <line x1="12" y1="22" x2="12" y2="7" />
+          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+        </svg>
+      ),
+      label: '20% OFF Offer',
+      color: 'linear-gradient(135deg, #e21d12 0%, #b81c22 100%)',
+      shadow: '0 10px 20px rgba(226, 29, 18, 0.35)',
+      isAction: true,
+      onClick: () => {
+        if (typeof window.openOfferModal === 'function') {
+          window.openOfferModal();
+        } else {
+          window.dispatchEvent(new CustomEvent('open-offer-modal'));
+        }
+      }
+    },
+    {
       id: 'call',
       icon: (
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -69,6 +92,21 @@ const FloatingActions = () => {
             <div className="btn-glow"></div>
           </>
         );
+
+        if (action.isAction) {
+          return (
+            <motion.button
+              key={action.id}
+              type="button"
+              className={`floating-action-btn ${action.id}-btn`}
+              onClick={action.onClick}
+              aria-label={action.label}
+              {...animProps}
+            >
+              {innerContent}
+            </motion.button>
+          );
+        }
 
         if (action.isInternal) {
           return (
