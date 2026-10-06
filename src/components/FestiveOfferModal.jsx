@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { trackLeadConversion } from '../utils/analytics';
 
 const FestiveOfferModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -173,18 +174,13 @@ const FestiveOfferModal = () => {
       setIsSubmitted(true);
       setFormData({ name: '', phone: '', email: '' });
 
-      // Google Ads Conversion Event
-      if (typeof window.gtag_report_conversion === 'function') {
-        window.gtag_report_conversion();
-      } else if (typeof window.gtag === 'function') {
-        window.gtag('event', 'conversion', {
-          send_to: 'AW-18450663698/e9gMCLmfjlYdEJKS-91E',
-          value: 1.0,
-          currency: 'INR',
-          event_category: 'Lead',
-          event_label: 'Festive Offer Pop-up'
-        });
-      }
+      // Track Lead conversion across Google Ads (with Enhanced Conversions) and Meta Pixel
+      trackLeadConversion({
+        name: nameTrimmed,
+        phone: rawPhone,
+        email: emailTrimmed,
+        source: 'Festive Offer Pop-up'
+      });
     }
   };
 

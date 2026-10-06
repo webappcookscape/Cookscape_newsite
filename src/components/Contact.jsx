@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackLeadConversion } from '../utils/analytics';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -83,18 +84,13 @@ const Contact = () => {
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', message: '' });
 
-      // Google Ads Conversion Event
-      if (typeof window.gtag_report_conversion === 'function') {
-        window.gtag_report_conversion();
-      } else if (typeof window.gtag === 'function') {
-        window.gtag('event', 'conversion', {
-          send_to: 'AW-18450663698/e9gMCLmfjlYdEJKS-91E',
-          value: 1.0,
-          currency: 'INR',
-          event_category: 'Lead',
-          event_label: 'Website Consultation Form'
-        });
-      }
+      // Track Lead conversion across Google Ads (with Enhanced Conversions) and Meta Pixel
+      trackLeadConversion({
+        name,
+        email,
+        phone,
+        source: 'Website Consultation Form'
+      });
     } catch (err) {
       console.error('Contact form submission error:', err);
       setStatus('error');

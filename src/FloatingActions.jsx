@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { trackContactAction } from './utils/analytics';
 
 const FloatingActions = () => {
   const actions = [
@@ -97,6 +98,9 @@ const FloatingActions = () => {
             target="_blank"
             rel="noopener noreferrer"
             className={`floating-action-btn ${action.id}-btn`}
+            onClick={() => {
+              trackContactAction(action.id === 'whatsapp' ? 'Floating WhatsApp' : 'Floating Phone Call');
+            }}
             {...animProps}
           >
             {innerContent}

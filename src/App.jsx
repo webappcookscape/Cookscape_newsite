@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import './App.css';
@@ -18,6 +18,7 @@ import SegmentAutoScroll from './components/SegmentAutoScroll';
 
 function AppContent() {
   const location = useLocation();
+  const isFirstRender = useRef(true);
 
   // Scroll to top or specific anchor on route change (robust to lazy loaded components)
   useEffect(() => {
@@ -48,6 +49,13 @@ function AppContent() {
       window.gtag('config', 'AW-18450663698', {
         page_path: location.pathname + location.search,
       });
+    }
+
+    // Meta Pixel (fbq) SPA pageview tracking
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    } else if (typeof window.fbq === 'function') {
+      window.fbq('track', 'PageView');
     }
   }, [location]);
 
