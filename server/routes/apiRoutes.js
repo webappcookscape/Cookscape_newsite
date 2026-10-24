@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { sendEmail, getHealth } from '../controllers/emailController.js';
+import { sendEmail, getHealth, applyJob } from '../controllers/emailController.js';
 import { renameImage } from '../controllers/imageController.js';
 
 const router = Router();
 
 // Lead & Enquiry Form Email Route
 router.post('/send-email', sendEmail);
+
+// Job / Career Application Route (Sends to es.cookscape@gmail.com)
+router.post('/apply-job', applyJob);
 
 // Gallery Image Renaming Route
 router.post('/rename-image', renameImage);

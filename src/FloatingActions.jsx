@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { trackContactAction } from './utils/analytics';
 
 const FloatingActions = () => {
+  const location = useLocation();
+  const isCareersPage = location.pathname.startsWith('/careers') || location.pathname === '/apply';
+
   const actions = [
     {
       id: 'offer',
@@ -70,9 +73,13 @@ const FloatingActions = () => {
     }
   ];
 
+  const visibleActions = isCareersPage
+    ? actions.filter(action => action.id !== 'offer')
+    : actions;
+
   return (
     <div className="floating-actions-container">
-      {actions.map((action, index) => {
+      {visibleActions.map((action, index) => {
         const animProps = {
           initial: { opacity: 0, x: 50 },
           animate: { opacity: 1, x: 0 },

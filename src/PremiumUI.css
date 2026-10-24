@@ -974,6 +974,73 @@ color: var(--text-primary-dark);
   background: var(--premium-accent);
 }
 
+.careers-open-application-banner {
+  background: linear-gradient(135deg, #161616 0%, #222222 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 4px solid var(--premium-accent, #b81c22);
+  border-radius: 20px;
+  padding: 35px 45px;
+  margin-top: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.open-app-content h3 {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: 1.6rem;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.open-app-content p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 650px;
+}
+
+.open-app-btn {
+  background: var(--premium-accent, #b81c22);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 20px rgba(184, 28, 34, 0.35);
+  flex-shrink: 0;
+}
+
+.open-app-btn:hover {
+  background: #d3252c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(184, 28, 34, 0.5);
+}
+
+@media (max-width: 768px) {
+  .careers-open-application-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px 24px;
+    gap: 20px;
+  }
+
+  .open-app-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .careers-culture-section {
   padding: 100px 0;
   background: white;

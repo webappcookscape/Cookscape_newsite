@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { trackLeadConversion } from '../utils/analytics';
 
 const OfferModal = () => {
+  const location = useLocation();
+  const isCareersPage = location.pathname.startsWith('/careers') || location.pathname === '/apply';
+
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -24,6 +27,11 @@ const OfferModal = () => {
   const schedulePopup = (delayMs = 15000) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
+    // Never show or schedule on careers or application pages
+    if (location.pathname.startsWith('/careers') || location.pathname === '/apply') {
+      return;
+    }
+
     const isSubmittedSession = sessionStorage.getItem('hasSubmittedOfferModal') === 'true';
     if (isSubmittedSession) {
       console.log('📢 [OfferPopup] Offer already claimed in this session. Recurring popup paused.');
@@ -40,6 +48,12 @@ const OfferModal = () => {
   };
 
   useEffect(() => {
+    // If navigating to careers or apply page, immediately clear any timer and close modal
+    if (isCareersPage) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setIsOpen(false);
+      return;
+    }
     // 1. Immediately clean up any past permanent lockout from localStorage
     try {
       localStorage.removeItem('hasSubmittedOfferModal');
@@ -202,6 +216,10 @@ const OfferModal = () => {
       });
     }
   };
+
+  if (isCareersPage) {
+    return null;
+  }
 
   return (
     <>

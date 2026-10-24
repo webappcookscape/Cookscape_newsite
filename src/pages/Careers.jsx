@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import Footer from '../components/Footer';
@@ -89,15 +90,15 @@ const JobCard = ({ job, index }) => {
         <button className="btn-expand" onClick={() => setExpanded(!expanded)}>
           {expanded ? 'Show Less' : 'View Details'}
         </button>
-        <a 
-          href={`mailto:es.cookscape@gmail.com?subject=Application for ${job.title}&body=Hi Cookscape Team,%0D%0A%0D%0AI am interested in applying for the ${job.title} position.%0D%0A%0D%0A[Please attach your resume and a brief introduction here]%0D%0A%0D%0ARegards,%0D%0A[Your Name]`} 
+        <Link 
+          to={`/careers/apply?job=${encodeURIComponent(job.title)}`}
           className="btn-apply"
         >
           Apply Now
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
-        </a>
+        </Link>
       </div>
     </motion.div>
   );
@@ -230,6 +231,20 @@ const Careers = () => {
             {JOBS.map((job, idx) => (
               <JobCard key={idx} job={job} index={idx} />
             ))}
+          </div>
+
+          {/* Open Application Banner */}
+          <div className="careers-open-application-banner">
+            <div className="open-app-content">
+              <h3>Don't see your specific role listed?</h3>
+              <p>We're continually scouting visionary 3D Visualizers, Site Supervisors, Project Estimators, and Modular Furniture Experts across Chennai.</p>
+            </div>
+            <Link to="/careers/apply?job=Other%20%2F%20Open%20Application" className="open-app-btn">
+              <span>Submit Open Application</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>

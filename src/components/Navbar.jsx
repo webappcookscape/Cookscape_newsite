@@ -36,7 +36,7 @@ const Navbar = () => {
   };
 
   const isDarkHeroPage =
-    location.pathname === "/portfolio" || location.pathname === "/careers";
+    location.pathname === "/portfolio" || location.pathname.startsWith("/careers") || location.pathname === "/apply";
 
   const menuVariants = {
     closed: {

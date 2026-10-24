@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import BlogIndex from './pages/BlogIndex';
 import BlogPost from './pages/BlogPost';
 import Careers from './pages/Careers';
+import CareersApply from './pages/CareersApply';
 import Gallery from './pages/Gallery';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -71,6 +72,8 @@ function AppContent() {
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/careers/apply" element={<CareersApply />} />
+        <Route path="/apply" element={<CareersApply />} />
         <Route path="/portfolio" element={<Gallery />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
@@ -78,7 +81,10 @@ function AppContent() {
       </Routes>
 
       <SegmentAutoScroll threshold={0.85} />
-      <OfferModal />
+      {/* Hide lead consultation pop-up form on careers and application pages */}
+      {!location.pathname.startsWith('/careers') && location.pathname !== '/apply' && (
+        <OfferModal />
+      )}
       <FloatingActions />
     </div>
   );
