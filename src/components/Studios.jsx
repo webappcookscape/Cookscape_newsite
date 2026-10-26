@@ -32,14 +32,8 @@ const Studios = () => {
               <h3 className="studio-name">{studio.name}</h3>
               <div className="studio-divider"></div>
               <p className="studio-address">{studio.address}</p>
-              {studio.phone && (
-                <div className="studio-phone-link">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.79 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 013.33 2h3a2 2 0 012 1.72 12.81 12.81 0 00.59 2.81 2 2 0 01-.45 2.11L7.09 10.12a16 16 0 006.79 6.79l1.48-1.48a2 2 0 012.11-.45 12.81 12.81 0 002.81.59A2 2 0 0122 16.92z" />
-                  </svg>
-                  <a href={`tel:+91${studio.phone.replace(/\s/g, '')}`}>{studio.phone}</a>
-                </div>
-              )}
+           
+              
             </motion.div>
           ))}
         </div>
