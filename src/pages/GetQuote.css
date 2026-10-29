@@ -1,0 +1,590 @@
+/* ==========================================================================
+   STANDALONE GET QUOTE PAGE STYLES - COOKSCAPE
+   ========================================================================== */
+
+.get-quote-page {
+  background-color: #faf9f6;
+  min-height: 100vh;
+  padding: 40px 20px 60px;
+  color: #1a1a1a;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Main Card Container */
+.get-quote-container {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.get-quote-card {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Form Introduction Header Banner */
+.quote-intro-banner {
+  position: relative;
+  background: linear-gradient(135deg, #141414 0%, #221617 60%, #3a1114 100%);
+  color: #ffffff;
+  padding: 42px 52px 38px;
+  border-bottom: 3px solid #b81c22;
+  overflow: hidden;
+}
+
+.quote-intro-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 20%, rgba(184, 28, 34, 0.35) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.quote-intro-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.quote-intro-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.quote-intro-logo {
+  height: 44px;
+  width: auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.quote-intro-badge {
+  display: inline-block;
+  background: rgba(184, 28, 34, 0.28);
+  border: 1px solid rgba(255, 107, 107, 0.45);
+  color: #ff8585;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 100px;
+}
+
+.quote-intro-title {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: clamp(1.85rem, 3.2vw, 2.5rem);
+  line-height: 1.2;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.quote-intro-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: #ff6b6b;
+}
+
+.quote-intro-subtitle {
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.65;
+  margin: 0 0 24px 0;
+  max-width: 720px;
+}
+
+.quote-intro-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quote-highlight-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.highlight-check {
+  color: #ff6b6b;
+  font-weight: 800;
+}
+
+.get-quote-card-body {
+  padding: 42px 52px 48px;
+}
+
+@media (max-width: 768px) {
+  .get-quote-page {
+    padding: 20px 12px 40px;
+  }
+
+  .get-quote-card {
+    border-radius: 18px;
+  }
+
+  .quote-intro-banner {
+    padding: 28px 22px 26px;
+  }
+
+  .get-quote-card-body {
+    padding: 28px 20px 32px;
+  }
+}
+
+/* Form Sections */
+.quote-form-section {
+  margin-bottom: 38px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #ebe8e1;
+}
+
+.quote-form-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 10px;
+}
+
+.quote-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.quote-section-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b81c22 0%, #8f1217 100%);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(184, 28, 34, 0.25);
+}
+
+.quote-section-title {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.quote-section-desc {
+  font-size: 0.85rem;
+  color: #666666;
+  margin: 3px 0 0 0;
+}
+
+/* Grid Layouts */
+.quote-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.quote-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 820px) {
+  .quote-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 680px) {
+  .quote-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Field Group */
+.quote-field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.quote-field-group:last-child {
+  margin-bottom: 0;
+}
+
+.quote-field-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #222222;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quote-field-label .required {
+  color: #b81c22;
+  font-weight: 700;
+}
+
+.quote-field-label .hint {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #666666;
+}
+
+/* Inputs */
+.quote-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.quote-input-icon {
+  position: absolute;
+  left: 15px;
+  color: #888888;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.quote-input {
+  width: 100%;
+  padding: 13px 16px 13px 44px;
+  background: #faf9f6;
+  border: 1.5px solid #e5e2da;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #111111;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.quote-input.no-icon {
+  padding-left: 16px;
+}
+
+.quote-input:focus {
+  outline: none;
+  border-color: #b81c22;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(184, 28, 34, 0.12);
+}
+
+.quote-input.has-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.quote-field-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Pill Buttons (Radio-style choices) */
+.quote-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quote-pill-btn {
+  background: #faf9f6;
+  border: 1.5px solid #e5e2da;
+  color: #2b2b2b;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quote-pill-btn:hover:not(:disabled) {
+  border-color: #b81c22;
+  color: #b81c22;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.quote-pill-btn.active {
+  background: #111111;
+  border-color: #111111;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.quote-pill-btn.active .pill-dot {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #aaa;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+/* Multi-select Checkboxes for Interior Requirements */
+.quote-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .quote-checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quote-checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #faf9f6;
+  border: 1.5px solid #e5e2da;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.quote-checkbox-card:hover {
+  border-color: #b81c22;
+  background: #ffffff;
+}
+
+.quote-checkbox-card.checked {
+  background: #fdf5f5;
+  border-color: #b81c22;
+  box-shadow: 0 4px 12px rgba(184, 28, 34, 0.08);
+}
+
+.quote-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #c5c1b7;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  color: transparent;
+}
+
+.quote-checkbox-card.checked .quote-checkbox-box {
+  background: #b81c22;
+  border-color: #b81c22;
+  color: #ffffff;
+}
+
+.quote-checkbox-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Budget Grid */
+.quote-budget-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .quote-budget-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-budget-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Action Buttons Bar */
+.quote-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.quote-submit-btn {
+  flex: 1;
+  min-width: 240px;
+  background: linear-gradient(135deg, #b81c22 0%, #8f1217 100%);
+  color: #ffffff;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 100px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(184, 28, 34, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.quote-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(184, 28, 34, 0.42);
+  background: linear-gradient(135deg, #d12229 0%, #8f1217 100%);
+}
+
+.quote-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.quote-copy-btn {
+  background: #f4f3ef;
+  color: #1a1a1a;
+  border: 1.5px solid #dcd8ce;
+  padding: 15px 24px;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quote-copy-btn:hover {
+  border-color: #111111;
+  background: #111111;
+  color: #ffffff;
+}
+
+.quote-copy-btn.copied {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  color: #1b5e20;
+}
+
+/* Error Banner */
+.quote-error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #dc2626;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-bottom: 26px;
+  color: #991b1b;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Success Screen */
+.quote-success-box {
+  text-align: center;
+  padding: 36px 20px;
+}
+
+.quote-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  color: #2e7d32;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  border: 3px solid #c8e6c9;
+}
+
+.quote-success-title {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: 2.1rem;
+  color: #111111;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.quote-success-sub {
+  font-size: 1.02rem;
+  color: #555555;
+  max-width: 560px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.quote-summary-preview {
+  background: #faf9f6;
+  border: 1px solid #ebe8e1;
+  border-radius: 16px;
+  padding: 22px 24px;
+  max-width: 600px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+
+.quote-summary-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #222222;
+}
+
+.quote-success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}

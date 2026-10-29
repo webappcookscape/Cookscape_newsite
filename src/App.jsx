@@ -12,6 +12,7 @@ import Gallery from './pages/Gallery';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import ImageNamer from './pages/ImageNamer';
+import GetQuote from './pages/GetQuote';
 import Navbar from './components/Navbar';
 import FloatingActions from './FloatingActions';
 import OfferModal from './components/OfferModal';
@@ -20,6 +21,8 @@ import SegmentAutoScroll from './components/SegmentAutoScroll';
 function AppContent() {
   const location = useLocation();
   const isFirstRender = useRef(true);
+  const isStandaloneQuotePage =
+    location.pathname === '/get-quote' || location.pathname === '/quote';
 
   // Scroll to top or specific anchor on route change (robust to lazy loaded components)
   useEffect(() => {
@@ -65,7 +68,7 @@ function AppContent() {
       {/* 4-Corner Mesh Gradient Background */}
       <div className="bg-mesh"></div>
       
-      <Navbar />
+      {!isStandaloneQuotePage && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -78,14 +81,18 @@ function AppContent() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/rename-gallery" element={<ImageNamer />} />
+        <Route path="/get-quote" element={<GetQuote />} />
+        <Route path="/quote" element={<GetQuote />} />
       </Routes>
 
-      <SegmentAutoScroll threshold={0.85} />
-      {/* Hide lead consultation pop-up form on careers and application pages */}
-      {!location.pathname.startsWith('/careers') && location.pathname !== '/apply' && (
-        <OfferModal />
-      )}
-      <FloatingActions />
+      {!isStandaloneQuotePage && <SegmentAutoScroll threshold={0.85} />}
+      {/* Hide lead consultation pop-up form on careers, application, and standalone get-quote pages */}
+      {!location.pathname.startsWith('/careers') &&
+        location.pathname !== '/apply' &&
+        !isStandaloneQuotePage && (
+          <OfferModal />
+        )}
+      {!isStandaloneQuotePage && <FloatingActions />}
     </div>
   );
 }

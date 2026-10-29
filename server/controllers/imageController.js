@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
  */
 export const renameImage = (req, res) => {
   const { oldUrl, newName, category } = req.body;
+  
 
   if (!oldUrl || !newName || !category) {
     return res.status(400).json({ error: 'Missing required fields (oldUrl, newName, category).' });
