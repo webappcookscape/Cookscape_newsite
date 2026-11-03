@@ -1217,7 +1217,7 @@ export const EXPERIENCE_CENTERS = [
   {
     city: "Chennai",
     name: "OMR Studio",
-    address: "#3/33, Thoraipakkam, Rajiv Gandhi Salai, OMR, Chennai - 600119"
+    address: "Second Floor, No 3/331, Old Mahabalipuram Road, Mettukuppam, Thuraipakkam, Chennai - 600097"
   },
   {
     city: "Chennai",
