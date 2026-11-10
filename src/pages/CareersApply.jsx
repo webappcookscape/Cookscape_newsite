@@ -60,6 +60,7 @@ const CareersApply = () => {
     noticePeriod: 'Immediate',
     portfolioUrl: '',
     coverLetter: '',
+    company_website_url: '', // Honeypot field for bot trapping
   });
 
   // Resume File
@@ -238,6 +239,7 @@ const CareersApply = () => {
       portfolioUrl: formData.portfolioUrl.trim(),
       coverLetter: formData.coverLetter.trim(),
       resume: resumeFile || null,
+      honeypot: formData.company_website_url || '',
     };
 
     try {
@@ -738,6 +740,20 @@ const CareersApply = () => {
 
               {/* Section 4: Cover Note */}
               <div className="apply-form-section">
+                {/* Honeypot anti-spam trap (invisible to human visitors, filled by automated bots) */}
+                <div style={{ display: 'none', opacity: 0, position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                  <label htmlFor="company_website_url">Company Website</label>
+                  <input
+                    type="text"
+                    id="company_website_url"
+                    name="company_website_url"
+                    tabIndex="-1"
+                    autoComplete="off"
+                    value={formData.company_website_url || ''}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
                 <h3 className="apply-form-section-title">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />

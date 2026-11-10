@@ -46,10 +46,76 @@ transporter.verify((error) => {
   }
 });
 
+// In-memory rate limiter per IP (prevents spam floods without external dependencies)
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour window
+const MAX_REQUESTS_PER_WINDOW = 5; // Max 5 submissions per IP per hour
+
+const isRateLimited = (ip) => {
+  if (!ip) return false;
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now - record.startTime > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, startTime: now });
+    return false;
+  }
+  record.count += 1;
+  return record.count > MAX_REQUESTS_PER_WINDOW;
+};
+
+// Periodic cleanup of stale rate-limit records every 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of rateLimitMap.entries()) {
+    if (now - record.startTime > RATE_LIMIT_WINDOW_MS) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 30 * 60 * 1000);
+
+// Helper to detect obvious bot gibberish strings
+const isGibberish = (str) => {
+  if (!str || typeof str !== 'string') return false;
+  const clean = str.trim();
+  if (clean.length < 5) return false;
+
+  // Single word with no spaces that is 14+ characters long with mixed case and random consonant sequences
+  // e.g. "wnsnzYePbFyGBCxJpDIHMLf", "yjiNTEWgUMuuCMXKylUmwNdK"
+  if (!clean.includes(' ') && clean.length >= 14) {
+    // Count consecutive consonants
+    if (/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{6,}/.test(clean)) {
+      return true;
+    }
+    // Abnormal uppercase/lowercase alternation with 0 spaces
+    const upperCount = (clean.match(/[A-Z]/g) || []).length;
+    const lowerCount = (clean.match(/[a-z]/g) || []).length;
+    if (upperCount >= 4 && lowerCount >= 4 && upperCount + lowerCount === clean.length) {
+      return true;
+    }
+  }
+  return false;
+};
+
+// Helper to check for multi-dotted spam Gmail addresses (e.g., u.ta.xu.j.o.bito.886@gmail.com)
+const isSpamEmailPattern = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  const lower = email.trim().toLowerCase();
+  const [localPart, domain] = lower.split('@');
+  if (domain === 'gmail.com' || domain === 'googlemail.com') {
+    const dotCount = (localPart.match(/\./g) || []).length;
+    // Real names rarely have 4 or more dots in local part, bots insert dots after every 1-2 chars
+    if (dotCount >= 4) {
+      return true;
+    }
+  }
+  return false;
+};
+
 /**
  * Controller to send customer enquiry and lead emails
  */
 export const sendEmail = async (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
   const {
     name,
     phone,
@@ -66,7 +132,25 @@ export const sendEmail = async (req, res) => {
     interiors,
     budget,
     timeline,
+    honeypot,
   } = req.body;
+
+  // Bot trap
+  if (honeypot && String(honeypot).trim().length > 0) {
+    return res.status(200).json({ success: true, message: 'Your enquiry has been sent successfully!' });
+  }
+
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: 'Too many submissions. Please try again after some time.' });
+  }
+
+  if (isGibberish(name)) {
+    return res.status(400).json({ error: 'Please enter a valid full name.' });
+  }
+
+  if (isSpamEmailPattern(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
 
   if (!name || !phone || !email) {
     return res.status(400).json({ error: 'Name, phone, and email are required.' });
@@ -213,6 +297,7 @@ export const sendEmail = async (req, res) => {
  */
 export const sendQuote = async (req, res) => {
   try {
+    const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
     const {
       name,
       email,
@@ -226,7 +311,31 @@ export const sendQuote = async (req, res) => {
       budget,
       timeline,
       source,
+      honeypot,
     } = req.body;
+
+    // Bot trap
+    if (honeypot && String(honeypot).trim().length > 0) {
+      return res.status(200).json({
+        success: true,
+        quoteId: `CS-QT-${Math.floor(100000 + Math.random() * 900000)}`,
+        message: 'Your quote enquiry has been sent successfully!',
+      });
+    }
+
+    if (isRateLimited(clientIp)) {
+      return res.status(429).json({
+        error: 'Too many quote requests submitted. Please try again after some time.',
+      });
+    }
+
+    if (isGibberish(name)) {
+      return res.status(400).json({ error: 'Please enter a valid full name.' });
+    }
+
+    if (isSpamEmailPattern(email)) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
 
     if (!name || !email || !phone) {
       return res.status(400).json({
@@ -446,6 +555,8 @@ export const getHealth = (req, res) => {
  */
 export const applyJob = async (req, res) => {
   try {
+    const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
+
     const {
       jobTitle,
       name,
@@ -458,12 +569,54 @@ export const applyJob = async (req, res) => {
       portfolioUrl,
       coverLetter,
       resume,
+      honeypot, // Hidden bot trap field
     } = req.body;
 
-    // Basic validation
+    // 1. Honeypot check: If bot filled this field, silently acknowledge without sending email
+    if (honeypot && String(honeypot).trim().length > 0) {
+      console.warn(`[Anti-Spam] Bot detected via honeypot field from IP: ${clientIp}`);
+      return res.status(200).json({
+        success: true,
+        message: 'Application received and forwarded to HR successfully!',
+        applicationId: `CS-APP-${Math.floor(100000 + Math.random() * 900000)}`,
+      });
+    }
+
+    // 2. IP Rate limiting check
+    if (isRateLimited(clientIp)) {
+      console.warn(`[Anti-Spam] Rate limit exceeded for IP: ${clientIp}`);
+      return res.status(429).json({
+        error: 'Too many applications submitted recently. Please try again after an hour or contact us directly.',
+      });
+    }
+
+    // 3. Basic validation
     if (!name || !email || !phone || !jobTitle) {
       return res.status(400).json({
         error: 'Required fields missing: name, email, phone, and job title are mandatory.',
+      });
+    }
+
+    // 4. Bot gibberish & spam email pattern checks
+    if (isGibberish(name) || isGibberish(currentRole) || isGibberish(coverLetter)) {
+      console.warn(`[Anti-Spam] Rejected gibberish bot submission: name="${name}", role="${currentRole}"`);
+      return res.status(400).json({
+        error: 'Invalid candidate information detected. Please verify your details.',
+      });
+    }
+
+    if (isSpamEmailPattern(email)) {
+      console.warn(`[Anti-Spam] Rejected suspicious multi-dot email: ${email}`);
+      return res.status(400).json({
+        error: 'Please enter a valid personal or professional email address.',
+      });
+    }
+
+    // 5. Clean phone check (prevent random overseas spam strings)
+    const cleanDigits = String(phone).replace(/\D/g, '');
+    if (cleanDigits.length < 10 || cleanDigits.length > 15) {
+      return res.status(400).json({
+        error: 'Please enter a valid mobile number with at least 10 digits.',
       });
     }
 
