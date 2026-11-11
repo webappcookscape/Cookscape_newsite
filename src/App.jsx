@@ -13,6 +13,7 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import ImageNamer from './pages/ImageNamer';
 import GetQuote from './pages/GetQuote';
+import ThankYou from './pages/ThankYou';
 import Navbar from './components/Navbar';
 import FloatingActions from './FloatingActions';
 import OfferModal from './components/OfferModal';
@@ -22,7 +23,9 @@ function AppContent() {
   const location = useLocation();
   const isFirstRender = useRef(true);
   const isStandaloneQuotePage =
-    location.pathname === '/get-quote' || location.pathname === '/quote';
+    location.pathname === '/get-quote' ||
+    location.pathname === '/quote' ||
+    location.pathname === '/thank-you';
 
   // Scroll to top or specific anchor on route change (robust to lazy loaded components)
   useEffect(() => {
@@ -83,6 +86,7 @@ function AppContent() {
         <Route path="/rename-gallery" element={<ImageNamer />} />
         <Route path="/get-quote" element={<GetQuote />} />
         <Route path="/quote" element={<GetQuote />} />
+        <Route path="/thank-you" element={<ThankYou />} />
       </Routes>
 
       {!isStandaloneQuotePage && <SegmentAutoScroll threshold={0.85} />}
