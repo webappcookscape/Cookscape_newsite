@@ -67,3 +67,4 @@ export const renameImage = (req, res) => {
     return res.status(500).json({ error: `Internal error: ${err.message}` });
   }
 };
+// controller added 
